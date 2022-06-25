@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -18,9 +20,11 @@ public class UserValidateTest {
     @Autowired
     private LocalValidatorFactoryBean validator;
     private static User user;
+    private static UserController userController;
 
     @BeforeEach
     void setUp() {
+        userController = new UserController();
         user = new User();
         user.setId(1L);
         user.setName("name");
@@ -31,13 +35,13 @@ public class UserValidateTest {
 
     @Test
     void isCorrect() {
-        assertDoesNotThrow(() -> User.validate(user));
+        assertDoesNotThrow(() -> userController.validate(user));
     }
 
     @Test
     void invalidId() {
         user.setId(null);
-        assertThrows(ValidationException.class, () -> User.validate(user));
+        assertThrows(ValidationException.class, () -> userController.validate(user));
     }
 
     @Test
@@ -59,7 +63,7 @@ public class UserValidateTest {
         assertEquals(1, validator.validateProperty(user, "login").size());
 
         user.setLogin("lorem impsum");
-        assertThrows(ValidationException.class, () -> User.validate(user));
+        assertThrows(ValidationException.class, () -> userController.validate(user));
 
         user.setLogin(null);
         assertEquals(2, validator.validateProperty(user, "login").size());
@@ -68,14 +72,14 @@ public class UserValidateTest {
     @Test
     void noName() throws ValidationException {
         user.setName(null);
-        User.validate(user);
+        userController.validate(user);
         assertEquals(user.getName(), user.getLogin());
-        assertDoesNotThrow(() -> User.validate(user));
+        assertDoesNotThrow(() -> userController.validate(user));
 
         user.setName("");
-        User.validate(user);
+        userController.validate(user);
         assertEquals(user.getName(), user.getLogin());
-        assertDoesNotThrow(() -> User.validate(user));
+        assertDoesNotThrow(() -> userController.validate(user));
     }
 
     @Test

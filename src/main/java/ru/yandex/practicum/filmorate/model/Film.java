@@ -9,8 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @Slf4j
-public class Film {
-    private Long id;
+public class Film extends DataStorage {
     @NotNull
     @NotBlank
     private String name;
@@ -22,11 +21,4 @@ public class Film {
     @NotNull
     @Positive
     private Integer duration;
-
-    public static void validate(Film film) throws ValidationException {
-        if (film.getId() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error(film + " is invalid");
-            throw new ValidationException();
-        }
-    }
 }

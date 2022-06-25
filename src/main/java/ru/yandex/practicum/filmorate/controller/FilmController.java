@@ -1,38 +1,21 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
 import ru.yandex.practicum.filmorate.model.Film;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.LocalDate;
 
+@Slf4j
 @RestController
-public class FilmController {
-    private final HashMap<Long, Film> films = new HashMap<>();
+@RequestMapping("/films")
+public class FilmController extends AbstrcatController<Film> {
 
-    @PostMapping("/films")
-    public Film addFilm(@Valid @RequestBody Film film) throws ValidationException {
-        film.setId((long) (films.size() + 1));
-        Film.validate(film);
-        films.put(film.getId(), film);
-        return film;
-    }
-
-    @PutMapping("/films")
-    public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException {
-        Film.validate(film);
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-        } else {
+    public void validate(Film film) throws ValidationException {
+        if (film.getId() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.error(film + " is invalid");
             throw new ValidationException();
         }
-        return film;
-    }
-
-    @GetMapping("/films")
-    public List<Film> getFilm() {
-        return new ArrayList<Film>(films.values());
     }
 }

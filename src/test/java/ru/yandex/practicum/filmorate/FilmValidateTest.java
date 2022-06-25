@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -18,9 +20,11 @@ public class FilmValidateTest {
     @Autowired
     private LocalValidatorFactoryBean validator;
     private static Film film;
+    private static FilmController filmController;
 
     @BeforeEach
     void setUp() {
+        filmController = new FilmController();
         film = new Film();
         film.setId(1L);
         film.setName("name");
@@ -31,13 +35,13 @@ public class FilmValidateTest {
 
     @Test
     void isCorrect() {
-        assertDoesNotThrow(() -> Film.validate(film));
+        assertDoesNotThrow(() -> filmController.validate(film));
     }
 
     @Test
     void invalidId() {
         film.setId(null);
-        assertThrows(ValidationException.class, () -> Film.validate(film));
+        assertThrows(ValidationException.class, () -> filmController.validate(film));
     }
 
     @Test
@@ -62,7 +66,7 @@ public class FilmValidateTest {
     @Test
     void invalidReleaseDate() {
         film.setReleaseDate(film.getReleaseDate().minusDays(1));
-        assertThrows(ValidationException.class, () -> Film.validate(film));
+        assertThrows(ValidationException.class, () -> filmController.validate(film));
 
         film.setReleaseDate(null);
         assertEquals(1, validator.validateProperty(film, "releaseDate").size());

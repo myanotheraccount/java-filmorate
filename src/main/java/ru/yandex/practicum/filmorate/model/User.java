@@ -10,9 +10,8 @@ import java.util.Objects;
 
 @Data
 @Slf4j
-public class User {
+public class User extends DataStorage {
     private String name;
-    private Long id;
     @NotNull
     @NotBlank
     @Email
@@ -23,15 +22,4 @@ public class User {
     @NotNull
     @Past
     private LocalDate birthday;
-
-    public static void validate(User user) throws ValidationException {
-        if ((user.getId() == null || user.getLogin().contains(" "))) {
-            log.error(user + "is invalid");
-            throw new ValidationException();
-        }
-
-        if (user.getName() == null || Objects.equals(user.getName(), "")) {
-            user.setName(user.getLogin());
-        }
-    }
 }

@@ -1,39 +1,27 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import ru.yandex.practicum.filmorate.model.User;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Objects;
 
+@Slf4j
 @RestController
-public class UserController {
-    private final HashMap<Long, User> users = new HashMap<>();
+@RequestMapping("/users")
+public class UserController extends AbstrcatController<User> {
 
-    @PostMapping("/users")
-    public User addUser(@Valid @RequestBody User user) throws ValidationException {
-        user.setId((long) (users.size() + 1));
-        User.validate(user);
-        users.put(user.getId(), user);
-        return user;
-    }
-
-    @PutMapping("/users")
-    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        User.validate(user);
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-        } else {
+    @Override
+    public void validate(User user) throws ValidationException {
+        if ((user.getId() == null || user.getLogin().contains(" "))) {
+            log.error(user + "is invalid");
             throw new ValidationException();
         }
-        return user;
-    }
 
-    @GetMapping("/users")
-    public List<User> getUsers() {
-        return new ArrayList<User>(users.values());
+        if (user.getName() == null || Objects.equals(user.getName(), "")) {
+            user.setName(user.getLogin());
+        }
     }
-
 }
