@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.controller.ValidationException;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Slf4j
@@ -21,4 +23,17 @@ public class Film extends DataStorage {
     @NotNull
     @Positive
     private Integer duration;
+    private Set<Long> likes = new HashSet<>();
+
+    public void addLike(Long id) {
+        likes.add(id);
+    }
+
+    public void removeLike(Long id) {
+        likes.remove(id);
+    }
+
+    public int getLikes() {
+        return likes.size();
+    }
 }

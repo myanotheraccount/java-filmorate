@@ -2,11 +2,10 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.*;
 
 @Data
 @Slf4j
@@ -22,4 +21,12 @@ public class User extends DataStorage {
     @NotNull
     @Past
     private LocalDate birthday;
+    private Set<Long> friends = new HashSet<>();
+    public void addFriend(Long id) {
+        friends.add(id);
+    }
+
+    public void removeFriend(Long id) {
+        friends.remove(id);
+    }
 }
