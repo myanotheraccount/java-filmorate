@@ -8,25 +8,24 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
-public class UserController extends AbstrcatController<User> {
-    @Autowired
-    UserService userService;
+public class UserController extends AbstractController<User> {
+    private final UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
         super(userService);
+        this.userService = userService;
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(
             @PathVariable Long id,
             @PathVariable Long friendId
-    ) throws NotFoundException {
+    ) {
         userService.addFriend(id, friendId);
     }
 
@@ -34,12 +33,12 @@ public class UserController extends AbstrcatController<User> {
     public void deleteFriend(
             @PathVariable Long id,
             @PathVariable Long friendId
-    ) throws NotFoundException {
+    ) {
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable Long id) throws NotFoundException {
+    public List<User> getFriends(@PathVariable Long id) {
         return userService.getFriends(id);
     }
 
@@ -49,17 +48,5 @@ public class UserController extends AbstrcatController<User> {
             @PathVariable Long otherId
     ) {
         return userService.getCommonFriends(id, otherId);
-    }
-
-    @Override
-    public void validate(User user) throws ValidationException {
-        if ((user.getId() == null || user.getLogin().contains(" "))) {
-            log.error(user + "is invalid");
-            throw new ValidationException();
-        }
-
-        if (user.getName() == null || Objects.equals(user.getName(), "")) {
-            user.setName(user.getLogin());
-        }
     }
 }

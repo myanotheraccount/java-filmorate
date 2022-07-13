@@ -9,7 +9,8 @@ import java.util.*;
 
 @Data
 @Slf4j
-public class User extends DataStorage {
+public class User  {
+    private Long id;
     private String name;
     @NotNull
     @NotBlank

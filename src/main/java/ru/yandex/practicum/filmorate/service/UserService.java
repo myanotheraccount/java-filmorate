@@ -1,44 +1,55 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.controller.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class UserService implements AbstractService<User> {
+    private final InMemoryUserStorage userStorage;
+
+    private Long id = 0L;
+
     @Autowired
-    InMemoryUserStorage userStorage;
+    public UserService(InMemoryUserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
+    private Long generateId() {
+        return ++id;
+    }
 
     @Override
     public User create(User user) {
+        user.setId(0L);
+        validate(user);
+        user.setId(generateId());
         return userStorage.update(user);
     }
 
     @Override
-    public void update(User user) throws NotFoundException {
+    public User update(User user) {
+        validate(user);
         if (userStorage.isExist(user.getId())) {
-            userStorage.update(user);
-        } else {
-            log.error(user + " id not found");
-            throw new NotFoundException(user + " id not found");
+            return userStorage.update(user);
         }
+        throw new NotFoundException(user + " id not found");
     }
 
     @Override
-    public User get(Long id) throws NotFoundException {
+    public User get(Long id) {
         if (userStorage.isExist(id)) {
             return userStorage.get(id);
         }
-        log.error(id + " id not found");
         throw new NotFoundException(id + " id not found");
     }
 
@@ -47,7 +58,7 @@ public class UserService implements AbstractService<User> {
         return userStorage.getAll();
     }
 
-    public void addFriend(Long userId, Long friendId) throws NotFoundException {
+    public void addFriend(Long userId, Long friendId) {
         if (userStorage.isExist(userId) && userStorage.isExist(friendId)) {
             User user = get(userId);
             user.addFriend(friendId);
@@ -60,7 +71,7 @@ public class UserService implements AbstractService<User> {
         }
     }
 
-    public void removeFriend(Long userId, Long friendId) throws NotFoundException {
+    public void removeFriend(Long userId, Long friendId) {
         if (userStorage.isExist(userId) && userStorage.isExist(friendId)) {
             User user = get(userId);
             user.addFriend(friendId);
@@ -68,12 +79,11 @@ public class UserService implements AbstractService<User> {
         }
     }
 
-    public List<User> getFriends(Long userId) throws NotFoundException {
+    public List<User> getFriends(Long userId) {
         if (userStorage.isExist(userId)) {
             User user = get(userId);
             return user.getFriends().stream().map(userStorage::get).collect(Collectors.toList());
         }
-        log.error(userId + " id not found");
         throw new NotFoundException(userId + " id not found");
     }
 
@@ -86,5 +96,15 @@ public class UserService implements AbstractService<User> {
             }
         }
         return result;
+    }
+
+    public void validate(User user) {
+        if ((user.getId() == null || user.getLogin().contains(" "))) {
+            throw new ValidationException(user + " is invalid");
+        }
+
+        if (user.getName() == null || Objects.equals(user.getName(), "")) {
+            user.setName(user.getLogin());
+        }
     }
 }

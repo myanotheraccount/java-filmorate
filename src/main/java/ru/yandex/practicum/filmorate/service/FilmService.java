@@ -1,47 +1,58 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.controller.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class FilmService implements AbstractService<Film> {
-    @Autowired
-    InMemoryFilmStorage filmStorage;
+    private final InMemoryFilmStorage filmStorage;
+
+    private final InMemoryUserStorage userStorage;
+
+    private Long id = 0L;
 
     @Autowired
-    InMemoryUserStorage userStorage;
+    public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
+
+    private Long generateId() {
+        return ++id;
+    }
 
     @Override
     public Film create(Film film) {
+        film.setId(0L);
+        validate(film);
+        film.setId(generateId());
         return filmStorage.update(film);
     }
 
     @Override
-    public void update(Film film) throws NotFoundException {
+    public Film update(Film film) {
+        validate(film);
         if (filmStorage.isExist(film.getId())) {
-            filmStorage.update(film);
-        } else {
-            log.error(film + " id not found");
-            throw new NotFoundException(film + " id not found");
+            return filmStorage.update(film);
         }
+        throw new NotFoundException(film + " id not found");
     }
 
     @Override
-    public Film get(Long id) throws NotFoundException {
+    public Film get(Long id) {
         if (filmStorage.isExist(id)) {
             return filmStorage.get(id);
         }
-        log.error(id + " id not found");
         throw new NotFoundException(id + " id not found");
     }
 
@@ -50,19 +61,18 @@ public class FilmService implements AbstractService<Film> {
         return filmStorage.getAll();
     }
 
-    public void addLike(Long id, Long userId) throws NotFoundException {
+    public void addLike(Long id, Long userId) {
         Film film = get(id);
         film.addLike(userId);
         update(film);
     }
 
-    public void removeLike(Long id, Long userId) throws NotFoundException {
+    public void removeLike(Long id, Long userId) {
         Film film = get(id);
         if (userStorage.isExist(userId)) {
             film.removeLike(userId);
             update(film);
         } else {
-            log.error(userId + " user id not found");
             throw new NotFoundException(userId + " user id not found");
         }
     }
@@ -71,5 +81,11 @@ public class FilmService implements AbstractService<Film> {
         List<Film> films = filmStorage.getAll();
         films.sort(Comparator.comparing(Film::getLikes).reversed());
         return films.stream().limit(count).collect(Collectors.toList());
+    }
+
+    public void validate(Film film) {
+        if (film.getId() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException(film + " is invalid");
+        }
     }
 }

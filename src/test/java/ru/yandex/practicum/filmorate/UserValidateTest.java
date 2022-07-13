@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -21,11 +21,11 @@ public class UserValidateTest {
     @Autowired
     private LocalValidatorFactoryBean validator;
     private static User user;
-    private static UserController userController;
+    private static UserService userService;
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(new UserService());
+        userService = new UserService(new InMemoryUserStorage());
         user = new User();
         user.setId(1L);
         user.setName("name");
@@ -36,13 +36,13 @@ public class UserValidateTest {
 
     @Test
     void isCorrect() {
-        assertDoesNotThrow(() -> userController.validate(user));
+        assertDoesNotThrow(() -> userService.validate(user));
     }
 
     @Test
     void invalidId() {
         user.setId(null);
-        assertThrows(ValidationException.class, () -> userController.validate(user));
+        assertThrows(ValidationException.class, () -> userService.validate(user));
     }
 
     @Test
@@ -64,23 +64,23 @@ public class UserValidateTest {
         assertEquals(1, validator.validateProperty(user, "login").size());
 
         user.setLogin("lorem impsum");
-        assertThrows(ValidationException.class, () -> userController.validate(user));
+        assertThrows(ValidationException.class, () -> userService.validate(user));
 
         user.setLogin(null);
         assertEquals(2, validator.validateProperty(user, "login").size());
     }
 
     @Test
-    void noName() throws ValidationException {
+    void noName() {
         user.setName(null);
-        userController.validate(user);
+        userService.validate(user);
         assertEquals(user.getName(), user.getLogin());
-        assertDoesNotThrow(() -> userController.validate(user));
+        assertDoesNotThrow(() -> userService.validate(user));
 
         user.setName("");
-        userController.validate(user);
+        userService.validate(user);
         assertEquals(user.getName(), user.getLogin());
-        assertDoesNotThrow(() -> userController.validate(user));
+        assertDoesNotThrow(() -> userService.validate(user));
     }
 
     @Test

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
@@ -11,7 +10,8 @@ import java.util.Set;
 
 @Data
 @Slf4j
-public class Film extends DataStorage {
+public class Film  {
+    private Long id;
     @NotNull
     @NotBlank
     private String name;
