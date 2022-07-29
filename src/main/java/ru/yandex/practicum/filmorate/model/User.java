@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.*;
@@ -8,8 +10,9 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Data
-@Slf4j
-public class User  {
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
     private Long id;
     private String name;
     @NotNull
@@ -22,12 +25,4 @@ public class User  {
     @NotNull
     @Past
     private LocalDate birthday;
-    private Set<Long> friends = new HashSet<>();
-    public void addFriend(Long id) {
-        friends.add(id);
-    }
-
-    public void removeFriend(Long id) {
-        friends.remove(id);
-    }
 }
