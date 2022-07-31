@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -66,41 +65,6 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
     @Override
     public List<User> getAll() {
         return jdbcTemplate.query(readSql("users_get_all"), this::mapRowToUser);
-    }
-
-    @Override
-    public void addFriend(Long userId, Long friendId) {
-        User user = findUserById(userId);
-        User friend = findUserById(friendId);
-        jdbcTemplate.update(readSql("users_add_friend"),
-                user.getId(), friend.getId(), true);
-    }
-
-    @Override
-    public void removeFriend(Long userId, Long friendId) {
-        User user = findUserById(userId);
-        User friend = findUserById(friendId);
-        jdbcTemplate.update(readSql("users_remove_friend"),
-                user.getId(), friend.getId(), friend.getId(), user.getId());
-    }
-
-    @Override
-    public List<User> getFriends(Long userId) {
-        User user = findUserById(userId);
-        return jdbcTemplate.query(readSql("users_get_friends"),
-                this::mapRowToUser,
-                user.getId()
-        );
-    }
-
-    @Override
-    public List<User> getCommonFriends(Long id, Long otherId) {
-        List<Long> userFriendsIds = getFriends(id).stream()
-                .map(User::getId)
-                .collect(Collectors.toList());
-        return getFriends(otherId).stream()
-                .filter(user -> userFriendsIds.contains(user.getId()))
-                .collect(Collectors.toList());
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

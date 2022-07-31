@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FriendsService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -14,11 +15,13 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController extends AbstractController<User> {
     private final UserService userService;
+    private final FriendsService friendsService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FriendsService friendsService) {
         super(userService);
         this.userService = userService;
+        this.friendsService = friendsService;
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -26,7 +29,7 @@ public class UserController extends AbstractController<User> {
             @PathVariable Long id,
             @PathVariable Long friendId
     ) {
-        userService.addFriend(id, friendId);
+        friendsService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -34,12 +37,12 @@ public class UserController extends AbstractController<User> {
             @PathVariable Long id,
             @PathVariable Long friendId
     ) {
-        userService.removeFriend(id, friendId);
+        friendsService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Long id) {
-        return userService.getFriends(id);
+        return friendsService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
@@ -47,6 +50,6 @@ public class UserController extends AbstractController<User> {
             @PathVariable Long id,
             @PathVariable Long otherId
     ) {
-        return userService.getCommonFriends(id, otherId);
+        return friendsService.getCommonFriends(id, otherId);
     }
 }

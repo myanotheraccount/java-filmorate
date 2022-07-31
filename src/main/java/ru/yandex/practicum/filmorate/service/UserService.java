@@ -40,22 +40,6 @@ public class UserService implements AbstractService<User> {
         return userDao.getAll();
     }
 
-    public void addFriend(Long userId, Long friendId) {
-        userDao.addFriend(userId, friendId);
-    }
-
-    public void removeFriend(Long userId, Long friendId) {
-        userDao.removeFriend(userId, friendId);
-    }
-
-    public List<User> getFriends(Long userId) {
-        return userDao.getFriends(userId);
-    }
-
-    public List<User> getCommonFriends(Long id, Long otherId) {
-        return userDao.getCommonFriends(id,otherId);
-    }
-
     public void validate(User user) {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException(user + " is invalid");

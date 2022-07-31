@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
-import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -13,18 +12,19 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
-    private final UserDao userDao;
 
-    public FilmDaoImpl(JdbcTemplate jdbcTemplate, UserDao userDao) {
+    public FilmDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userDao = userDao;
     }
 
     @Override
@@ -96,49 +96,9 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
     }
 
     @Override
-    public void addLike(Long filmId, Long userId) {
-        jdbcTemplate.update(readSql("films_add_like"), filmId, userId);
-    }
-
-    @Override
-    public void removeLike(Long filmId, Long userId) {
-        getFilmById(filmId);
-        userDao.getFriends(userId);
-        jdbcTemplate.update(readSql("films_remove_like"), filmId, userId);
-    }
-
-    @Override
     public List<Film> getPopular(Long count) {
         return jdbcTemplate.query(readSql("films_get_popular"),
                 this::parseFilm, count);
-    }
-
-    @Override
-    public Mpa getMpa(Long mpaId) {
-        try {
-            return jdbcTemplate.queryForObject(readSql("mpa_get_by_id"), this::parseMpa, mpaId);
-        } catch (Exception e) {
-            throw new NotFoundException("Рейтинг фильма с id = " + mpaId + " не найден: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public List<Mpa> getAllMpa() {
-        return jdbcTemplate.query(readSql("mpa_get_all"), this::parseMpa);
-    }
-
-    @Override
-    public Genre getGenre(Long genreId) {
-        try {
-            return jdbcTemplate.queryForObject(readSql("genres_get_by_id"), this::parseGenre, genreId);
-        } catch (Exception e) {
-            throw new NotFoundException("Жанр фильма с id = " + genreId + " не найден: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public List<Genre> getAllGenres() {
-        return jdbcTemplate.query(readSql("genres_get_all"), this::parseGenre);
     }
 
     private void addFilmGenre(Long filmId, Integer genreId) {
@@ -163,13 +123,6 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
         return new Mpa(
                 rs.getInt("mpa_id"),
                 rs.getString("mpa_name")
-        );
-    }
-
-    private Genre parseGenre(ResultSet rs, int rowNum) throws SQLException {
-        return new Genre(
-                rs.getInt("id"),
-                rs.getString("name")
         );
     }
 
