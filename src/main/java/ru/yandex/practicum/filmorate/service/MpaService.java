@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class MpaService {
-    private MpaDao mpaDao;
+    private final MpaDao mpaDao;
 
     @Autowired
     public MpaService(MpaDao mpaDao) {

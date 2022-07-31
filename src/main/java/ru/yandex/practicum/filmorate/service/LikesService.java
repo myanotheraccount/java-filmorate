@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.dao.LikesDao;
 
 @Service
 public class LikesService {
-    LikesDao likesDao;
+    private final LikesDao likesDao;
 
     @Autowired
     public LikesService(LikesDao likesDao) {

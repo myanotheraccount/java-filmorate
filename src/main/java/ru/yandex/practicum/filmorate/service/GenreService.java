@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class GenreService {
-    GenreDao genreDao;
+    private final GenreDao genreDao;
 
     @Autowired
     public GenreService(GenreDao genreDao) {

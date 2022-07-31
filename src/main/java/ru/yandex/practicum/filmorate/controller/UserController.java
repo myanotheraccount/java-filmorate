@@ -14,13 +14,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController extends AbstractController<User> {
-    private final UserService userService;
     private final FriendsService friendsService;
 
     @Autowired
     public UserController(UserService userService, FriendsService friendsService) {
         super(userService);
-        this.userService = userService;
         this.friendsService = friendsService;
     }
 
