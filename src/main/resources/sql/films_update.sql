@@ -1,0 +1,7 @@
+UPDATE FILMS
+SET NAME = ?,
+    DESCRIPTION = ?,
+    RELEASE_DATE = ?,
+    DURATION = ?,
+    MPA_ID = ?
+WHERE ID = ?;
