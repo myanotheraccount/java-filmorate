@@ -67,6 +67,11 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
         return jdbcTemplate.query(readSql("users_get_all"), this::mapRowToUser);
     }
 
+    @Override
+    public void delete(Long id) {
+        jdbcTemplate.update(readSql("users_remove_by_id"), id);
+    }
+
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return new User(
                 resultSet.getLong("id"),

@@ -1,18 +1,16 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import ru.yandex.practicum.filmorate.service.AbstractService;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 public abstract class AbstractController<T> {
-    private final AbstractService<T> service;
+    protected final AbstractService<T> service;
 
     @Autowired
     AbstractController(AbstractService<T> service) {
@@ -37,5 +35,10 @@ public abstract class AbstractController<T> {
     @GetMapping("/{id}")
     public T get(@PathVariable("id") Long id) {
         return service.get(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id) {
+        service.delete(id);
     }
 }

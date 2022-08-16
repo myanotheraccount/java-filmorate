@@ -40,6 +40,11 @@ public class UserService implements AbstractService<User> {
         return userDao.getAll();
     }
 
+    @Override
+    public void delete(Long id) {
+        userDao.delete(id);
+    }
+
     public void validate(User user) {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException(user + " is invalid");
