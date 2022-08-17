@@ -41,6 +41,11 @@ public class FilmService implements AbstractService<Film> {
         return filmDao.getAll();
     }
 
+    @Override
+    public void delete(Long id) {
+        filmDao.delete(id);
+    }
+
     public List<Film> getPopular(Long count) {
         return filmDao.getPopular(count);
     }

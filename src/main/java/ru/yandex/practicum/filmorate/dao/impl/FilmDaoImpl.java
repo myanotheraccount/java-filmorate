@@ -101,6 +101,11 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
                 this::parseFilm, count);
     }
 
+    @Override
+    public void delete(Long id) {
+        jdbcTemplate.update(readSql("films_remove_by_id"), id);
+    }
+
     private void addFilmGenre(Long filmId, Integer genreId) {
         jdbcTemplate.update(readSql("films_add_genre"), filmId, genreId);
     }
@@ -130,8 +135,8 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
         if (data.equals("_")) {
             return List.of();
         }
-        return Arrays.stream(data.split(","))
-                .map(str -> {
+
+        return Arrays.asList(data.split(",")).stream().map(str -> {
                     String[] params = str.split("_");
                     return new Genre(Integer.parseInt(params[0].trim()), params[1].trim());
                 })
