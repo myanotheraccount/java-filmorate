@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -45,6 +46,10 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
 
         if (film.getGenres() != null) {
             film.getGenres().forEach(genre -> addFilmGenre(filmId, genre.getId()));
+        }
+
+        if (film.getDirectors() != null) {
+            film.getDirectors().forEach(director -> addFilmDirector(filmId, director.getId()));
         }
 
         return getFilmById(filmId);
@@ -92,6 +97,11 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
                     });
         }
 
+        jdbcTemplate.update(readSql("films_remove_director"), film.getId());
+        if (film.getDirectors() != null) {
+            film.getDirectors().forEach(director -> addFilmDirector(film.getId(), director.getId()));
+        }
+
         return getFilmById(film.getId());
     }
 
@@ -99,6 +109,12 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
     public List<Film> getPopular(Long count) {
         return jdbcTemplate.query(readSql("films_get_popular"),
                 this::parseFilm, count);
+    }
+
+    @Override
+    public List<Film> getByFilter(Long directorId, String sortBy) {
+        return jdbcTemplate.query(readSql("films_get_by_filter"),
+                this::parseFilm, directorId, sortBy, sortBy);
     }
 
     @Override
@@ -110,6 +126,9 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
         jdbcTemplate.update(readSql("films_add_genre"), filmId, genreId);
     }
 
+    private void addFilmDirector(Long filmId, Long directorId) {
+        jdbcTemplate.update(readSql("films_add_director"), filmId, directorId);
+    }
 
     private Film parseFilm(ResultSet rs, int rowNum) throws SQLException {
         return new Film(
@@ -120,7 +139,8 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
                 rs.getInt("duration"),
                 parseMpa(rs, rowNum),
                 rs.getLong("rate"),
-                parseGenre(rs.getString("genres"), rowNum)
+                parseGenre(rs.getString("genres"), rowNum),
+                parseDirector(rs.getString("directors"), rowNum)
         );
     }
 
@@ -136,7 +156,7 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
             return List.of();
         }
 
-        return Arrays.asList(data.split(",")).stream().map(str -> {
+        return Arrays.stream(data.split(",")).map(str -> {
                     String[] params = str.split("_");
                     return new Genre(Integer.parseInt(params[0].trim()), params[1].trim());
                 })
@@ -145,5 +165,18 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
 
     private Integer parseGenreIds(ResultSet rs, int rowNum) throws SQLException {
         return rs.getInt("genre_id");
+    }
+
+    private List<Director> parseDirector(String data, int rowNum) {
+        try {
+            return Arrays.stream(data.split(","))
+                    .map(str -> {
+                        String[] params = str.split("_");
+                        return new Director(Long.parseLong(params[0].trim()), params[1].trim());
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 }
