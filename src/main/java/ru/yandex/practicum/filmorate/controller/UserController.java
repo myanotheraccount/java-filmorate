@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.*;
 
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FriendsService;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -19,12 +21,20 @@ import java.util.List;
 public class UserController extends AbstractController<User> {
     private final FriendsService friendsService;
     private final EventService eventService;
+    private final RecommendationService recommendationService;
+
 
     @Autowired
-    public UserController(UserService userService, FriendsService friendsService, EventService eventService) {
+    public UserController(UserService userService, FriendsService friendsService, RecommendationService recommendationService,EventService eventService) {
         super(userService);
         this.friendsService = friendsService;
         this.eventService = eventService;
+        this.recommendationService = recommendationService;
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable Long id) {
+        return recommendationService.getRecommendations(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
