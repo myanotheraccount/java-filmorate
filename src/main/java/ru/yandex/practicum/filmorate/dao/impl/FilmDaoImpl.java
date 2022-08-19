@@ -139,6 +139,12 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return jdbcTemplate.query(readSql("films_get_popular_common"),
+                this::parseFilm, userId, friendId);
+    }
+
+    @Override
     public void delete(Long id) {
         jdbcTemplate.update(readSql("films_remove_by_id"), id);
     }
