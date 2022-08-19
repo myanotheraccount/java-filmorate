@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS films_genres
     film_id  INTEGER,
     genre_id INTEGER,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
-    FOREIGN KEY (genre_id) REFERENCES genres (id),
+    FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, genre_id)
 );
 
@@ -57,4 +57,19 @@ CREATE TABLE IF NOT EXISTS likes
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS directors
+(
+    id   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS films_directors
+(
+    film_id     INTEGER,
+    director_id INTEGER,
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (director_id) REFERENCES directors (id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, director_id)
 );

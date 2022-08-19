@@ -15,5 +15,7 @@ public interface FilmDao {
 
     List<Film> getPopular(Long count);
 
+    List<Film> getByFilter(Long directorId, String sortBy);
+
     void delete(Long id);
 }
