@@ -54,6 +54,10 @@ public class FilmService implements AbstractService<Film> {
         return filmDao.getByFilter(directorId, sortBy);
     }
 
+    public List<Film> getFilmsByParams(String query, List<String> queryParams) {
+        return filmDao.getFilmsByParams(query, queryParams);
+    }
+
     public void validate(Film film) {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException(film + " is invalid");
