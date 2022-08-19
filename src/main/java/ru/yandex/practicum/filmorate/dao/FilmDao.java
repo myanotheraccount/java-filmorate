@@ -17,5 +17,7 @@ public interface FilmDao {
 
     List<Film> getByFilter(Long directorId, String sortBy);
 
+    List<Film> getFilmsByParams(String query, List<String> queryParams);
+
     void delete(Long id);
 }

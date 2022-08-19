@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -115,6 +112,30 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
     public List<Film> getByFilter(Long directorId, String sortBy) {
         return jdbcTemplate.query(readSql("films_get_by_filter"),
                 this::parseFilm, directorId, sortBy, sortBy);
+    }
+
+    @Override
+    public List<Film> getFilmsByParams(String queryText, List<String> queryParams) {
+        queryText = "%" + queryText + "%";
+        int queryParamsSize = queryParams.size();
+        switch (queryParamsSize) {
+            case 1: {
+                if (queryParams.get(0).equals("director")) {
+                    return jdbcTemplate.query(readSql("films_get_popular_by_director"),
+                            this::parseFilm, queryText);
+                } else {
+                    return jdbcTemplate.query(readSql("films_get_popular_by_title"),
+                            this::parseFilm, queryText);
+                }
+
+            }
+            case 2: {
+                return jdbcTemplate.query(readSql("films_get_popular_by_director_or_title"),
+                        this::parseFilm, queryText, queryText);
+            }
+            default:
+                throw new NotFoundException("Передано недопустимое количество параметра для поиска: " + queryParams.size());
+        }
     }
 
     @Override

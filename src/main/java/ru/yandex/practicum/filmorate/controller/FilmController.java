@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.LikesService;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -56,6 +57,17 @@ public class FilmController extends AbstractController<Film> {
         try {
             directorService.get(directorId);
             return filmService.getByFilter(directorId, sortBy);
+        } catch (Exception e) {
+            throw new NotFoundException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam String query,
+                             @RequestParam @NotNull List<String> by
+    ) {
+        try {
+            return filmService.getFilmsByParams(query, by);
         } catch (Exception e) {
             throw new NotFoundException(e.getMessage());
         }
