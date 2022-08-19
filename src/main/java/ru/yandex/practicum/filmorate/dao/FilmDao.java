@@ -19,5 +19,7 @@ public interface FilmDao {
 
     List<Film> getFilmsByParams(String query, List<String> queryParams);
 
+    List<Film> getCommonFilms(Long userId, Long friendId);
+
     void delete(Long id);
 }

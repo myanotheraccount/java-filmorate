@@ -63,11 +63,24 @@ public class FilmController extends AbstractController<Film> {
     }
 
     @GetMapping("/search")
-    public List<Film> search(@RequestParam String query,
-                             @RequestParam @NotNull List<String> by
+    public List<Film> search(
+            @RequestParam String query,
+            @RequestParam @NotNull List<String> by
     ) {
         try {
             return filmService.getFilmsByParams(query, by);
+        } catch (Exception e) {
+            throw new NotFoundException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommon(
+            @RequestParam @NotNull Long userId,
+            @RequestParam @NotNull Long friendId
+    ) {
+        try {
+            return filmService.getCommonFilms(userId, friendId);
         } catch (Exception e) {
             throw new NotFoundException(e.getMessage());
         }
