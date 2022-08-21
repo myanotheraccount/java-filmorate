@@ -145,6 +145,23 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
     }
 
     @Override
+    public List<Film> getPopular(long count, Optional<Integer> genreId, Optional<Integer> year) {
+
+        if (genreId.isPresent() && year.isPresent()) {
+            return jdbcTemplate.query(readSql("films_get_popular_filter_genre_year"),
+                    this::parseFilm, genreId.get(), year.get(), count);
+        } else if (genreId.isPresent()) {
+            return jdbcTemplate.query(readSql("films_get_popular_filter_genre"),
+                    this::parseFilm, genreId.get(), count);
+        } else if (year.isPresent()) {
+            return jdbcTemplate.query(readSql("films_get_popular_filter_year"),
+                    this::parseFilm, year.get(), count);
+        } else {
+            return getPopular(count);
+        }
+    }
+
+    @Override
     public void delete(Long id) {
         jdbcTemplate.update(readSql("films_remove_by_id"), id);
     }
