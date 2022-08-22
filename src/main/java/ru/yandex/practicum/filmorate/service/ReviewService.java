@@ -2,8 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.EventDao;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
@@ -12,23 +16,29 @@ import java.util.List;
 public class ReviewService implements AbstractService<Review> {
 
     private final ReviewDao reviewDao;
+    private final EventDao eventDao;
 
     @Autowired
-    public ReviewService(ReviewDao reviewDao) {
+    public ReviewService(ReviewDao reviewDao, EventDao eventDao) {
         this.reviewDao = reviewDao;
-
+        this.eventDao = eventDao;
     }
 
     @Override
     public Review create(Review review) {
         validate(review);
-
-        return reviewDao.createReview(review);
+        Review createdReview = reviewDao.createReview(review);
+        eventDao.addEvent(new Event(createdReview.getUserId(), createdReview.getReviewId(),
+                EventType.REVIEW, OperationType.ADD));
+        return createdReview;
     }
 
     @Override
     public Review update(Review review) {
-        return reviewDao.updateReview(review);
+        Review updatedReview = reviewDao.updateReview(review);
+        eventDao.addEvent(new Event(updatedReview.getUserId(), updatedReview.getReviewId(),
+                EventType.REVIEW, OperationType.UPDATE));
+        return updatedReview;
     }
 
     @Override
@@ -43,7 +53,10 @@ public class ReviewService implements AbstractService<Review> {
 
     @Override
     public void delete(Long id) {
+        Review deletedReview = get(id);
         reviewDao.delete(id);
+        eventDao.addEvent(new Event(deletedReview.getUserId(), id,
+                EventType.REVIEW, OperationType.REMOVE));
     }
 
     public List<Review> getReviewsByFilmIdCount(Long filmId, Integer count) {

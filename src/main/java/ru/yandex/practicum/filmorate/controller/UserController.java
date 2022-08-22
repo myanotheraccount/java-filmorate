@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FriendsService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -16,11 +18,13 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController extends AbstractController<User> {
     private final FriendsService friendsService;
+    private final EventService eventService;
 
     @Autowired
-    public UserController(UserService userService, FriendsService friendsService) {
+    public UserController(UserService userService, FriendsService friendsService, EventService eventService) {
         super(userService);
         this.friendsService = friendsService;
+        this.eventService = eventService;
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -55,5 +59,10 @@ public class UserController extends AbstractController<User> {
             @PathVariable Long otherId
     ) {
         return friendsService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Event> getEvents(@PathVariable Long id) {
+        return eventService.getEvents(id);
     }
 }
