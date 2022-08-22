@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.LikesService;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -45,8 +46,11 @@ public class FilmController extends AbstractController<Film> {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10") Long count) {
-        return filmService.getPopular(count);
+    public List<Film> getPopular(
+            @RequestParam(defaultValue = "10") long count,
+            @RequestParam Optional<Integer> genreId,
+            @RequestParam Optional<Integer> year) {
+        return filmService.getPopular(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
