@@ -1,0 +1,1 @@
+insert into EVENTS(USER_ID, ENTITY_ID, EVENT_TYPE, OPERATION_TYPE) values (?, ?, ?, ?);

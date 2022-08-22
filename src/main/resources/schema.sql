@@ -95,3 +95,14 @@ CREATE TABLE IF NOT EXISTS films_directors
     FOREIGN KEY (director_id) REFERENCES directors (id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, director_id)
 );
+
+CREATE TABLE IF NOT EXISTS events
+(
+    id             INTEGER PRIMARY KEY AUTO_INCREMENT,
+    user_id        INTEGER,
+    entity_id      INTEGER,
+    event_type     TINYINT,
+    operation_type TINYINT,
+    time_stamp     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
