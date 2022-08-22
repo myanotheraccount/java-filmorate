@@ -52,21 +52,21 @@ CREATE TABLE IF NOT EXISTS friendship
 
 CREATE TABLE IF NOT EXISTS likes
 (
+    id      INTEGER PRIMARY KEY AUTO_INCREMENT,
     film_id INTEGER,
     user_id INTEGER,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    PRIMARY KEY (film_id, user_id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS reviews
 (
     review_id   INTEGER PRIMARY KEY AUTO_INCREMENT,
-    content VARCHAR(200),
+    content     VARCHAR(200),
     is_positive BOOLEAN,
-    useful INTEGER,
-    user_id INTEGER,
-    film_id INTEGER,
+    useful      INTEGER,
+    user_id     INTEGER,
+    film_id     INTEGER,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
@@ -74,11 +74,11 @@ CREATE TABLE IF NOT EXISTS reviews
 CREATE TABLE IF NOT EXISTS reviews_likes
 (
     review_id   INTEGER,
-    user_id INTEGER,
+    user_id     INTEGER,
     is_positive INTEGER,
     FOREIGN KEY (review_id) REFERENCES reviews (review_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    PRIMARY KEY (review_id,user_id)
+    PRIMARY KEY (review_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS directors
