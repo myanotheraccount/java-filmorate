@@ -52,11 +52,11 @@ CREATE TABLE IF NOT EXISTS friendship
 
 CREATE TABLE IF NOT EXISTS likes
 (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
     film_id INTEGER,
     user_id INTEGER,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    PRIMARY KEY (film_id, user_id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS reviews
