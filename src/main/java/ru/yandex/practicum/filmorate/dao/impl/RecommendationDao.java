@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,16 +15,13 @@ import java.util.Set;
 @Slf4j
 public class RecommendationDao {
     private final JdbcTemplate jdbcTemplate;
-    private final FilmDaoImpl filmDaoImpl;
 
-    public RecommendationDao(JdbcTemplate jdbcTemplate, FilmDaoImpl filmDaoImpl) {
+    public RecommendationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.filmDaoImpl = filmDaoImpl;
     }
 
-    public List<Film> getRecommendations(Long id) {
+    public Set<Long> getRecommendations(Long id) {
         Set<Long> recommendationFilmId = new HashSet<>();
-        List<Film> recommendationFilm = new ArrayList<>();
         final List<Long> userFilmsIDList = new ArrayList<>(getFilmsIDList(id));
         final String sqlQueryUsersID = "SELECT ID from USERS";
         final List<Long> allUsersIDList = new ArrayList<>(jdbcTemplate.query(sqlQueryUsersID, this::getIdForUserList));
@@ -48,10 +44,7 @@ public class RecommendationDao {
             otherUserFilmsIDList.removeAll(excludeUserFilmsIDList);
             recommendationFilmId.addAll(otherUserFilmsIDList);
         }
-        for (Long filmId : recommendationFilmId) {
-            recommendationFilm.add(filmDaoImpl.getFilmById(filmId));
-        }
-        return recommendationFilm;
+        return recommendationFilmId;
     }
 
     private List<Long> getCrossListFilmsId(Long userId, List<Long> userFilmsIDList) {

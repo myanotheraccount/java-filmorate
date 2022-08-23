@@ -41,14 +41,11 @@ public class ReviewController {
     //Получение всех отзывов по идентификатору фильма, если фильм не указан, то по всем.
     @GetMapping()
     public List<Review> getAll(@RequestParam(required = false) Long filmId
-            , @RequestParam(required = false) Integer count) {
+            , @RequestParam(required = false, defaultValue = "10") Integer count) {
 
-        if (filmId == null && count == null) {
+        if (filmId == null) {
             return reviewService.getAll();
         } else {
-            if (count == null) {
-                count = 10;
-            }
             return reviewService.getReviewsByFilmIdCount(filmId, count);
         }
     }
