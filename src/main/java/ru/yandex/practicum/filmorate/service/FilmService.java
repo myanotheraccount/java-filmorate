@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FilmService implements AbstractService<Film> {
@@ -41,8 +42,25 @@ public class FilmService implements AbstractService<Film> {
         return filmDao.getAll();
     }
 
-    public List<Film> getPopular(Long count) {
-        return filmDao.getPopular(count);
+    @Override
+    public void delete(Long id) {
+        filmDao.delete(id);
+    }
+
+    public List<Film> getPopular(long count, Optional<Integer> genreId, Optional<Integer> year) {
+        return filmDao.getPopular(count, genreId, year);
+    }
+
+    public List<Film> getByFilter(Long directorId, String sortBy) {
+        return filmDao.getByFilter(directorId, sortBy);
+    }
+
+    public List<Film> getFilmsByParams(String query, List<String> queryParams) {
+        return filmDao.getFilmsByParams(query, queryParams);
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmDao.getCommonFilms(userId, friendId);
     }
 
     public void validate(Film film) {

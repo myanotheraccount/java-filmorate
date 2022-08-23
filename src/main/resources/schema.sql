@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS films_genres
 (
     film_id  INTEGER,
     genre_id INTEGER,
-    FOREIGN KEY (film_id) REFERENCES films (id),
-    FOREIGN KEY (genre_id) REFERENCES genres (id),
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, genre_id)
 );
 
@@ -45,16 +45,64 @@ CREATE TABLE IF NOT EXISTS friendship
     user_id   INTEGER,
     friend_id INTEGER,
     status    BOOLEAN,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (friend_id) REFERENCES users (id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (friend_id) REFERENCES users (id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, friend_id)
 );
 
 CREATE TABLE IF NOT EXISTS likes
 (
+    id  INTEGER PRIMARY KEY AUTO_INCREMENT,
     film_id INTEGER,
     user_id INTEGER,
-    FOREIGN KEY (film_id) REFERENCES films (id),
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    PRIMARY KEY (film_id, user_id)
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS reviews
+(
+    review_id   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    content VARCHAR(200),
+    is_positive BOOLEAN,
+    useful INTEGER,
+    user_id INTEGER,
+    film_id INTEGER,
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS reviews_likes
+(
+    review_id   INTEGER,
+    user_id INTEGER,
+    is_positive INTEGER,
+    FOREIGN KEY (review_id) REFERENCES reviews (review_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (review_id,user_id)
+);
+
+CREATE TABLE IF NOT EXISTS directors
+(
+    id   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS films_directors
+(
+    film_id     INTEGER,
+    director_id INTEGER,
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (director_id) REFERENCES directors (id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, director_id)
+);
+
+CREATE TABLE IF NOT EXISTS events
+(
+    id             INTEGER PRIMARY KEY AUTO_INCREMENT,
+    user_id        INTEGER,
+    entity_id      INTEGER,
+    event_type     TINYINT,
+    operation_type TINYINT,
+    time_stamp     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );

@@ -24,7 +24,9 @@ public class MpaDaoImpl extends AbstractDaoImpl implements MpaDao {
     @Override
     public Mpa getMpa(Long mpaId) {
         try {
-            return jdbcTemplate.queryForObject(readSql("mpa_get_by_id"), this::parseMpa, mpaId);
+            Mpa mpa = jdbcTemplate.queryForObject(readSql("mpa_get_by_id"), this::parseMpa, mpaId);
+            log.info("Найден рейтинг фильма с id = {}", mpaId);
+            return mpa;
         } catch (Exception e) {
             throw new NotFoundException("Рейтинг фильма с id = " + mpaId + " не найден: " + e.getMessage());
         }
@@ -32,7 +34,9 @@ public class MpaDaoImpl extends AbstractDaoImpl implements MpaDao {
 
     @Override
     public List<Mpa> getAllMpa() {
-        return jdbcTemplate.query(readSql("mpa_get_all"), this::parseMpa);
+        List<Mpa> mpas = jdbcTemplate.query(readSql("mpa_get_all"), this::parseMpa);
+        log.info("Найден список рейтингов фильмов");
+        return mpas;
     }
 
     private Mpa parseMpa(ResultSet rs, int rowNum) throws SQLException {

@@ -4,8 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FriendsService;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -15,11 +20,21 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController extends AbstractController<User> {
     private final FriendsService friendsService;
+    private final EventService eventService;
+    private final RecommendationService recommendationService;
+
 
     @Autowired
-    public UserController(UserService userService, FriendsService friendsService) {
+    public UserController(UserService userService, FriendsService friendsService, RecommendationService recommendationService,EventService eventService) {
         super(userService);
         this.friendsService = friendsService;
+        this.eventService = eventService;
+        this.recommendationService = recommendationService;
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable Long id) {
+        return recommendationService.getRecommendations(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -40,7 +55,12 @@ public class UserController extends AbstractController<User> {
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Long id) {
-        return friendsService.getFriends(id);
+        try {
+            service.get(id);
+            return friendsService.getFriends(id);
+        } catch (Exception e) {
+            throw new NotFoundException(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
@@ -49,5 +69,10 @@ public class UserController extends AbstractController<User> {
             @PathVariable Long otherId
     ) {
         return friendsService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Event> getEvents(@PathVariable Long id) {
+        return eventService.getEvents(id);
     }
 }
