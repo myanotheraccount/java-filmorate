@@ -23,19 +23,23 @@ public class FriendsDaoImpl extends AbstractDaoImpl implements FriendsDao {
     @Override
     public void addFriend(Long userId, Long friendId) {
         jdbcTemplate.update(readSql("friends_add"), userId, friendId, true);
+        log.info("Пользователь {} добавил друга {}", userId, friendId);
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
         jdbcTemplate.update(readSql("friends_remove"), userId, friendId, friendId, userId);
+        log.info("Пользователь {} удалил из друзей {}", userId, friendId);
     }
 
     @Override
     public List<User> getFriends(Long userId) {
-        return jdbcTemplate.query(readSql("friends_get"),
+        List<User> users = jdbcTemplate.query(readSql("friends_get"),
                 this::mapRowToUser,
                 userId
         );
+        log.info("Найдены друзья пользователя {}", userId);
+        return users;
     }
 
     @Override
@@ -43,6 +47,7 @@ public class FriendsDaoImpl extends AbstractDaoImpl implements FriendsDao {
         List<Long> userFriendsIds = getFriends(id).stream()
                 .map(User::getId)
                 .collect(Collectors.toList());
+        log.info("Найдены общие друзья пользователя {} и {}", id, otherId);
         return getFriends(otherId).stream()
                 .filter(user -> userFriendsIds.contains(user.getId()))
                 .collect(Collectors.toList());

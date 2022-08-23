@@ -49,12 +49,15 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
             film.getDirectors().forEach(director -> addFilmDirector(filmId, director.getId()));
         }
 
+        log.info("Добавлен фильм: {}", filmId);
         return getFilmById(filmId);
     }
 
     @Override
     public List<Film> getAll() {
-        return jdbcTemplate.query(readSql("films_get_all"), this::parseFilm);
+        List<Film> films = jdbcTemplate.query(readSql("films_get_all"), this::parseFilm);
+        log.info("Найден список фильмов");
+        return films;
     }
 
     @Override
@@ -99,79 +102,101 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
             film.getDirectors().forEach(director -> addFilmDirector(film.getId(), director.getId()));
         }
 
+        log.info("Обновлен фильм с id = {}", film.getId());
         return getFilmById(film.getId());
     }
 
     @Override
     public List<Film> getPopular(Long count) {
-        return jdbcTemplate.query(readSql("films_get_popular"),
+        List<Film> films = jdbcTemplate.query(readSql("films_get_popular"),
                 this::parseFilm, count);
+        log.info("Найден список популярных фильмов");
+        return films;
     }
 
     @Override
     public List<Film> getByFilter(Long directorId, String sortBy) {
-        return jdbcTemplate.query(readSql("films_get_by_filter"),
+        List<Film> films = jdbcTemplate.query(readSql("films_get_by_filter"),
                 this::parseFilm, directorId, sortBy, sortBy);
+        log.info("Найдены фильмы по фильтру id режиссера = {}, сортировка = {}", directorId, sortBy);
+        return films;
     }
 
     @Override
     public List<Film> getFilmsByParams(String queryText, List<String> queryParams) {
+        List<Film> films;
         queryText = "%" + queryText + "%";
         int queryParamsSize = queryParams.size();
         switch (queryParamsSize) {
             case 1: {
                 if (queryParams.get(0).equals("director")) {
-                    return jdbcTemplate.query(readSql("films_get_popular_by_director"),
+                    films = jdbcTemplate.query(readSql("films_get_popular_by_director"),
                             this::parseFilm, queryText);
+                    log.info("Выполнен поиск фильмов по режиссеру = {}", queryText);
                 } else {
-                    return jdbcTemplate.query(readSql("films_get_popular_by_title"),
+                    films = jdbcTemplate.query(readSql("films_get_popular_by_title"),
                             this::parseFilm, queryText);
+                    log.info("Выполнен поиск фильмов по названию = {}", queryText);
                 }
-
+                break;
             }
             case 2: {
-                return jdbcTemplate.query(readSql("films_get_popular_by_director_or_title"),
+                films = jdbcTemplate.query(readSql("films_get_popular_by_director_or_title"),
                         this::parseFilm, queryText, queryText);
+                log.info("Выполнен поиск фильмов по названию и режиссеру = {}", queryText);
+                break;
             }
             default:
                 throw new NotFoundException("Передано недопустимое количество параметра для поиска: " + queryParams.size());
         }
+        return films;
     }
 
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        return jdbcTemplate.query(readSql("films_get_popular_common"),
+        List<Film> films = jdbcTemplate.query(readSql("films_get_popular_common"),
                 this::parseFilm, userId, friendId);
+        log.info("Найдены общие фильмы у {} и {}", userId, friendId);
+        return films;
     }
 
     @Override
     public List<Film> getPopular(long count, Optional<Integer> genreId, Optional<Integer> year) {
+        List<Film> films;
 
         if (genreId.isPresent() && year.isPresent()) {
-            return jdbcTemplate.query(readSql("films_get_popular_filter_genre_year"),
+            films = jdbcTemplate.query(readSql("films_get_popular_filter_genre_year"),
                     this::parseFilm, genreId.get(), year.get(), count);
+            log.info("Найдены популярные фильмы по жанру = {} и по году = {}", genreId, year);
         } else if (genreId.isPresent()) {
-            return jdbcTemplate.query(readSql("films_get_popular_filter_genre"),
+            films = jdbcTemplate.query(readSql("films_get_popular_filter_genre"),
                     this::parseFilm, genreId.get(), count);
+            log.info("Найдены популярные фильмы по жанру = {}", genreId);
         } else if (year.isPresent()) {
-            return jdbcTemplate.query(readSql("films_get_popular_filter_year"),
+            films = jdbcTemplate.query(readSql("films_get_popular_filter_year"),
                     this::parseFilm, year.get(), count);
+            log.info("Найдены популярные фильмы по году = {}", year);
         } else {
-            return getPopular(count);
+            films = getPopular(count);
+            log.info("Найдены популярные фильмы");
         }
+        return films;
     }
 
     @Override
     public void delete(Long id) {
         jdbcTemplate.update(readSql("films_remove_by_id"), id);
+        log.info("Удален фильм с id = {}", id);
     }
 
     private void addFilmGenre(Long filmId, Integer genreId) {
         jdbcTemplate.update(readSql("films_add_genre"), filmId, genreId);
+        log.info("Добавлен жанр = {} фильма = {}", genreId, filmId);
     }
 
     private void addFilmDirector(Long filmId, Long directorId) {
         jdbcTemplate.update(readSql("films_add_director"), filmId, directorId);
+        log.info("Добавлен режиссер = {} фильма = {}", directorId, filmId);
     }
 
     private Film parseFilm(ResultSet rs, int rowNum) throws SQLException {

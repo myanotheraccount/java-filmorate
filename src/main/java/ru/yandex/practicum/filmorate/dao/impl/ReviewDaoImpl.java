@@ -40,6 +40,7 @@ public class ReviewDaoImpl extends AbstractDaoImpl implements ReviewDao {
         values.put("film_id", review.getFilmId());
 
         Long reviewId = simpleJdbcInsert.executeAndReturnKey(values).longValue();
+        log.info("Добавлен отзыв id = {}", reviewId);
         return getReviewById(reviewId);
     }
 
@@ -68,32 +69,40 @@ public class ReviewDaoImpl extends AbstractDaoImpl implements ReviewDao {
                 review.getIsPositive(),
                 review.getReviewId()
         );
+        log.info("Обновлен отзыв id = {}", review.getReviewId());
         return getReviewById(review.getReviewId());
     }
 
     @Override
     public List<Review> getReviewsByFilmId(Long filmId, Integer count) {
-        return jdbcTemplate.query(readSql("reviews_get_top_by_filmId"), this::parseReview, filmId, count);
+        List<Review> reviews = jdbcTemplate.query(readSql("reviews_get_top_by_filmId"), this::parseReview, filmId, count);
+        log.info("Найдены отзывы по фильму {}", filmId);
+        return reviews;
     }
 
     @Override
     public List<Review> getReviewsTop(Integer count) {
-        return jdbcTemplate.query(readSql("reviews_get_top"), this::parseReview, count);
+        List<Review> reviews = jdbcTemplate.query(readSql("reviews_get_top"), this::parseReview, count);
+        log.info("Найден топ отзывов");
+        return reviews;
     }
 
     @Override
     public void delete(Long id) {
         jdbcTemplate.update(readSql("reviews_remove_by_id"), id);
+        log.info("Удален отзыв {}", id);
     }
 
     @Override
     public void addLike(Long id, Long userId) {
         jdbcTemplate.update(readSql("reviews_add_likes_dislikes"), id, userId, 1);
+        log.info("Пользователь {} добавил лайк на отзыв {}", userId, id);
     }
 
     @Override
     public void addDislike(Long id, Long userId) {
         jdbcTemplate.update(readSql("reviews_add_likes_dislikes"), id, userId, 0);
+        log.info("Пользователь {} добавил дизлайк на отзыв {}", userId, id);
     }
 
     @Override
@@ -102,6 +111,7 @@ public class ReviewDaoImpl extends AbstractDaoImpl implements ReviewDao {
         if (removeCount < 1) {
             throw new NotFoundException("Не удалось удалить like отзыва");
         }
+        log.info("Пользователь {} удалена реакция на отзыв {}", userId, id);
     }
 
     private Review parseReview(ResultSet rs, int rowNum) throws SQLException {

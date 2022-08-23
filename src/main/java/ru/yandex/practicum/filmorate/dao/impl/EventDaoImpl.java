@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.EventDao;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Component
+@Slf4j
 public class EventDaoImpl extends AbstractDaoImpl implements EventDao {
 
     private final JdbcTemplate jdbcTemplate;
@@ -28,11 +30,14 @@ public class EventDaoImpl extends AbstractDaoImpl implements EventDao {
                 event.getEventType().getCode(),
                 event.getOperation().getCode()
         );
+        log.info("Добавлено событие {}", event.getEventId());
     }
 
     @Override
     public List<Event> getEvents(long userId) {
-        return jdbcTemplate.query(readSql("events_get_by_user"), this::parseEvent, userId);
+        List<Event> eventList = jdbcTemplate.query(readSql("events_get_by_user"), this::parseEvent, userId);
+        log.info("Найден полный список событий");
+        return eventList;
     }
 
     private Event parseEvent(ResultSet rs, int rowNum) throws SQLException {

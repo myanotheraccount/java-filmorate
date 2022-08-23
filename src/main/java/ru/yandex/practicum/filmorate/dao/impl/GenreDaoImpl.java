@@ -23,7 +23,9 @@ public class GenreDaoImpl extends AbstractDaoImpl implements GenreDao {
     @Override
     public Genre getGenre(Long genreId) {
         try {
-            return jdbcTemplate.queryForObject(readSql("genres_get_by_id"), this::parseGenre, genreId);
+            Genre genre = jdbcTemplate.queryForObject(readSql("genres_get_by_id"), this::parseGenre, genreId);
+            log.info("Найден жанр по id = {}", genreId);
+            return genre;
         } catch (Exception e) {
             throw new NotFoundException("Жанр фильма с id = " + genreId + " не найден: " + e.getMessage());
         }
@@ -31,7 +33,9 @@ public class GenreDaoImpl extends AbstractDaoImpl implements GenreDao {
 
     @Override
     public List<Genre> getAllGenres() {
-        return jdbcTemplate.query(readSql("genres_get_all"), this::parseGenre);
+        List<Genre> genres = jdbcTemplate.query(readSql("genres_get_all"), this::parseGenre);
+        log.info("Найден список жанров");
+        return genres;
     }
 
     private Genre parseGenre(ResultSet rs, int rowNum) throws SQLException {

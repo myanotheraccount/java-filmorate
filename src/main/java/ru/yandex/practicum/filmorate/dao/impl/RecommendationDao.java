@@ -44,6 +44,7 @@ public class RecommendationDao {
             otherUserFilmsIDList.removeAll(excludeUserFilmsIDList);
             recommendationFilmId.addAll(otherUserFilmsIDList);
         }
+        log.info("Найден список рекоммендованных фильмов для пользователя {}", id);
         return recommendationFilmId;
     }
 

@@ -34,6 +34,7 @@ public class DirectorDaoImpl extends AbstractDaoImpl implements DirectorDao {
 
         Long directorId = simpleJdbcInsert.executeAndReturnKey(values).longValue();
 
+        log.info("Добавлен режиссер с id = {}", directorId);
         return getDirectorById(directorId);
     }
 
@@ -52,7 +53,9 @@ public class DirectorDaoImpl extends AbstractDaoImpl implements DirectorDao {
 
     @Override
     public List<Director> getAll() {
-        return jdbcTemplate.query(readSql("directors_get_all"), this::parseDirector);
+        List<Director> directors = jdbcTemplate.query(readSql("directors_get_all"), this::parseDirector);
+        log.info("Найден список всех режиссеров");
+        return directors;
     }
 
     @Override
@@ -61,12 +64,14 @@ public class DirectorDaoImpl extends AbstractDaoImpl implements DirectorDao {
                 director.getName(),
                 director.getId()
         );
+        log.info("Обновлены данные режиссера с id = {}", director.getId());
         return getDirectorById(director.getId());
     }
 
     @Override
     public void delete(Long id) {
         jdbcTemplate.update(readSql("directors_remove_by_id"), id);
+        log.info("Удален режиссер с id = {}", id);
     }
 
     private Director parseDirector(ResultSet rs, int rowNum) throws SQLException {

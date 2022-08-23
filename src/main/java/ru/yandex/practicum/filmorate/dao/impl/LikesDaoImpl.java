@@ -18,6 +18,7 @@ public class LikesDaoImpl extends AbstractDaoImpl implements LikesDao {
     @Override
     public void addLike(Long filmId, Long userId) {
         jdbcTemplate.update(readSql("likes_add"), filmId, userId);
+        log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
 
     @Override
@@ -26,5 +27,6 @@ public class LikesDaoImpl extends AbstractDaoImpl implements LikesDao {
         if (removeCount < 1) {
             throw new NotFoundException("Не удалось удалить like");
         }
+        log.info("Пользователь {} удалил лайк фильму {}", userId, filmId);
     }
 }

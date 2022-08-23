@@ -35,7 +35,9 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
         values.put("login", user.getLogin());
         values.put("birthdate", user.getBirthday());
 
-        return findUserById(simpleJdbcInsert.executeAndReturnKey(values).longValue());
+        Long userId = simpleJdbcInsert.executeAndReturnKey(values).longValue();
+        log.info("Добавлен пользователь с id = {}", userId);
+        return findUserById(userId);
     }
 
     @Override
@@ -47,6 +49,7 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
                 user.getBirthday(),
                 user.getId()
         );
+        log.info("Обновлен пользователь с id = {}", user.getId());
         return findUserById(user.getId());
     }
 
@@ -64,12 +67,15 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query(readSql("users_get_all"), this::mapRowToUser);
+        List<User> users = jdbcTemplate.query(readSql("users_get_all"), this::mapRowToUser);
+        log.info("Найден список пользователей");
+        return users;
     }
 
     @Override
     public void delete(Long id) {
         jdbcTemplate.update(readSql("users_remove_by_id"), id);
+        log.info("Удален пользователь {}", id);
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
