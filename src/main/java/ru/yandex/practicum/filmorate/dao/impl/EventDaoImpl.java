@@ -30,7 +30,7 @@ public class EventDaoImpl extends AbstractDaoImpl implements EventDao {
                 event.getEventType().getCode(),
                 event.getOperation().getCode()
         );
-        log.info("Добавлено событие {}", event.getEventId());
+        log.info("Добавлено событие {} {}.", event.getOperation(), event.getEventType());
     }
 
     @Override

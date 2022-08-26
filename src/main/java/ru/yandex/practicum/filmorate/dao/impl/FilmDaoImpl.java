@@ -6,10 +6,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -184,6 +181,23 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
     }
 
     @Override
+    public List<Film> getRecommendations(Long userId) {
+        List<Film> films = jdbcTemplate.query(readSql("films_get_recommendations"),
+                this::parseFilm, userId, userId, userId);
+        log.info("Составлен список рекомендованных фильмов для пользователя {}.", userId);
+        return films;
+    }
+
+    /*
+    Метод использует тот же алгоритм в запросе, что и getRecommendations, но выдаёт обратный прогноз оценки для уже
+    просмотренных пользователем фильмов. Используется для тестирования.
+     */
+    public List<Film> getBackCastingRecommendations(Long userId) {
+        return jdbcTemplate.query(readSql("films_get_backcasting_recommendations"),
+                this::parseFilm, userId, userId, userId);
+    }
+
+    @Override
     public void delete(Long id) {
         jdbcTemplate.update(readSql("films_remove_by_id"), id);
         log.info("Удален фильм с id = {}", id);
@@ -207,7 +221,7 @@ public class FilmDaoImpl extends AbstractDaoImpl implements FilmDao {
                 rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"),
                 parseMpa(rs, rowNum),
-                rs.getLong("rate"),
+                rs.getFloat("rate"),
                 parseGenre(rs.getString("genres"), rowNum),
                 parseDirector(rs.getString("directors"), rowNum)
         );

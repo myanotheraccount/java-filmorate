@@ -24,5 +24,7 @@ public interface FilmDao {
 
     List<Film> getPopular(long count, Optional<Integer> genreId, Optional<Integer> year);
 
+    List<Film> getRecommendations(Long userId);
+
     void delete(Long id);
 }

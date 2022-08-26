@@ -52,11 +52,15 @@ CREATE TABLE IF NOT EXISTS friendship
 
 CREATE TABLE IF NOT EXISTS likes
 (
-    id  INTEGER PRIMARY KEY AUTO_INCREMENT,
+    --id  INTEGER PRIMARY KEY AUTO_INCREMENT,
     film_id INTEGER,
     user_id INTEGER,
+    mark_value FLOAT,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, user_id),
+    CONSTRAINT CHK_MARK_VALUE
+        CHECK (mark_value >= 1 AND mark_value <= 10)
 );
 
 CREATE TABLE IF NOT EXISTS reviews
