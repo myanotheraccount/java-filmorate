@@ -16,8 +16,12 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
+public class UserDaoImpl implements UserDao {
     private final JdbcTemplate jdbcTemplate;
+    private static final String USERS_GET_ALL = "SELECT * FROM USERS;";
+    private static final String USERS_GET_BY_ID = "SELECT * FROM USERS WHERE ID = ?;";
+    private static final String USERS_REMOVE_BY_ID = "DELETE FROM USERS WHERE ID = ?;";
+    private static final String USERS_UPDATE = "UPDATE USERS SET NAME = ?, EMAIL = ?, LOGIN = ?, BIRTHDATE = ? WHERE ID = ?;";
 
     public UserDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -42,7 +46,7 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
 
     @Override
     public User updateUser(User user) {
-        jdbcTemplate.update(readSql("users_update"),
+        jdbcTemplate.update(USERS_UPDATE,
                 user.getName(),
                 user.getEmail(),
                 user.getLogin(),
@@ -56,7 +60,7 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
     @Override
     public User findUserById(Long id) {
         try {
-            User user = jdbcTemplate.queryForObject(readSql("users_get_by_id"),
+            User user = jdbcTemplate.queryForObject(USERS_GET_BY_ID,
                     this::mapRowToUser, id);
             log.info("Найден пользователь: {} {}", user.getId(), user.getName());
             return user;
@@ -67,14 +71,14 @@ public class UserDaoImpl extends AbstractDaoImpl implements UserDao {
 
     @Override
     public List<User> getAll() {
-        List<User> users = jdbcTemplate.query(readSql("users_get_all"), this::mapRowToUser);
+        List<User> users = jdbcTemplate.query(USERS_GET_ALL, this::mapRowToUser);
         log.info("Найден список пользователей");
         return users;
     }
 
     @Override
     public void delete(Long id) {
-        jdbcTemplate.update(readSql("users_remove_by_id"), id);
+        jdbcTemplate.update(USERS_REMOVE_BY_ID, id);
         log.info("Удален пользователь {}", id);
     }
 

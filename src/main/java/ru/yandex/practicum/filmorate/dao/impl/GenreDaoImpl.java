@@ -13,8 +13,10 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class GenreDaoImpl extends AbstractDaoImpl implements GenreDao {
+public class GenreDaoImpl implements GenreDao {
     private final JdbcTemplate jdbcTemplate;
+    private static final String GENRES_GET_ALL = "SELECT * FROM GENRES;";
+    private static final String GENRES_GET_BY_ID = "SELECT * FROM GENRES WHERE ID = ?;";
 
     public GenreDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -23,7 +25,7 @@ public class GenreDaoImpl extends AbstractDaoImpl implements GenreDao {
     @Override
     public Genre getGenre(Long genreId) {
         try {
-            Genre genre = jdbcTemplate.queryForObject(readSql("genres_get_by_id"), this::parseGenre, genreId);
+            Genre genre = jdbcTemplate.queryForObject(GENRES_GET_BY_ID, this::parseGenre, genreId);
             log.info("Найден жанр по id = {}", genreId);
             return genre;
         } catch (Exception e) {
@@ -33,7 +35,7 @@ public class GenreDaoImpl extends AbstractDaoImpl implements GenreDao {
 
     @Override
     public List<Genre> getAllGenres() {
-        List<Genre> genres = jdbcTemplate.query(readSql("genres_get_all"), this::parseGenre);
+        List<Genre> genres = jdbcTemplate.query(GENRES_GET_ALL, this::parseGenre);
         log.info("Найден список жанров");
         return genres;
     }

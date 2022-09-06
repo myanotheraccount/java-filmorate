@@ -16,8 +16,12 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class DirectorDaoImpl extends AbstractDaoImpl implements DirectorDao {
+public class DirectorDaoImpl implements DirectorDao {
     private final JdbcTemplate jdbcTemplate;
+    private static final String DIRECTORS_GET_BY_ID = "SELECT * FROM DIRECTORS WHERE ID = ?;";
+    private static final String DIRECTORS_GET_ALL = "SELECT * FROM DIRECTORS;";
+    private static final String DIRECTORS_REMOVE_BY_ID = "DELETE FROM DIRECTORS WHERE ID = ?;";
+    private static final String DIRECTORS_UPDATE_BY_ID = "UPDATE DIRECTORS SET NAME = ? WHERE ID = ?;";
 
     public DirectorDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -41,7 +45,7 @@ public class DirectorDaoImpl extends AbstractDaoImpl implements DirectorDao {
     @Override
     public Director getDirectorById(Long id) {
         try {
-            Director director = jdbcTemplate.queryForObject(readSql("directors_get_by_id"),
+            Director director = jdbcTemplate.queryForObject(DIRECTORS_GET_BY_ID,
                     this::parseDirector, id);
             log.info("Найден режиссер: {}", director.getName());
             return director;
@@ -53,14 +57,14 @@ public class DirectorDaoImpl extends AbstractDaoImpl implements DirectorDao {
 
     @Override
     public List<Director> getAll() {
-        List<Director> directors = jdbcTemplate.query(readSql("directors_get_all"), this::parseDirector);
+        List<Director> directors = jdbcTemplate.query(DIRECTORS_GET_ALL, this::parseDirector);
         log.info("Найден список всех режиссеров");
         return directors;
     }
 
     @Override
     public Director updateDirector(Director director) {
-        jdbcTemplate.update(readSql("directors_update"),
+        jdbcTemplate.update(DIRECTORS_UPDATE_BY_ID,
                 director.getName(),
                 director.getId()
         );
@@ -70,7 +74,7 @@ public class DirectorDaoImpl extends AbstractDaoImpl implements DirectorDao {
 
     @Override
     public void delete(Long id) {
-        jdbcTemplate.update(readSql("directors_remove_by_id"), id);
+        jdbcTemplate.update(DIRECTORS_REMOVE_BY_ID, id);
         log.info("Удален режиссер с id = {}", id);
     }
 

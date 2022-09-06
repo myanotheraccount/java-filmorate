@@ -1,3 +1,0 @@
-SELECT *
-FROM MPAS
-WHERE MPA_ID = ?;

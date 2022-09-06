@@ -9,8 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class MarksDaoImpl extends AbstractDaoImpl implements MarksDao {
+public class MarksDaoImpl implements MarksDao {
     private final JdbcTemplate jdbcTemplate;
+    private static final String LIKES_REMOVE = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?;";
+    private static final String MARKS_ADD = "MERGE INTO LIKES(FILM_ID, USER_ID, MARK_VALUE) VALUES (?, ?, ?);";
+    private static final String MARKS_GET_AVG_BY_FILM = "SELECT ROUND(AVG(MARK_VALUE), 1) AS MARK_VALUE FROM LIKES WHERE FILM_ID = ?;";
+    private static final String MARKS_GET_BY_FILM_USER = "SELECT ROUND(MARK_VALUE, 1) AS MARK_VALUE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?;";
 
     public MarksDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -20,7 +24,7 @@ public class MarksDaoImpl extends AbstractDaoImpl implements MarksDao {
     public float getMark(long filmId, long userId) {
         try {
             //noinspection ConstantConditions
-            return jdbcTemplate.queryForObject(readSql("marks_get_by_film_user"), this::parseMark,
+            return jdbcTemplate.queryForObject(MARKS_GET_BY_FILM_USER, this::parseMark,
                     filmId, userId);
         } catch (Exception e) {
             return Mark.NULL_MARK;
@@ -31,7 +35,7 @@ public class MarksDaoImpl extends AbstractDaoImpl implements MarksDao {
     public float getMark(long filmId) {
         try {
             //noinspection ConstantConditions
-            return jdbcTemplate.queryForObject(readSql("marks_get_avg_by_film"), this::parseMark, filmId);
+            return jdbcTemplate.queryForObject(MARKS_GET_AVG_BY_FILM, this::parseMark, filmId);
         } catch (Exception e) {
             return Mark.NULL_MARK;
         }
@@ -40,7 +44,7 @@ public class MarksDaoImpl extends AbstractDaoImpl implements MarksDao {
     @Override
     public boolean addMark(long filmId, long userId, float mark) {
         try {
-            return 0 < jdbcTemplate.update(readSql("marks_add"), filmId, userId, mark);
+            return 0 < jdbcTemplate.update(MARKS_ADD, filmId, userId, mark);
         } catch (Exception e) {
             return false;
         }
@@ -48,7 +52,7 @@ public class MarksDaoImpl extends AbstractDaoImpl implements MarksDao {
 
     @Override
     public boolean removeMark(long filmId, long userId) {
-        return 0 < jdbcTemplate.update(readSql("likes_remove"), filmId, userId);
+        return 0 < jdbcTemplate.update(LIKES_REMOVE, filmId, userId);
     }
 
     private float parseMark(ResultSet rs, int rowNum) throws SQLException {

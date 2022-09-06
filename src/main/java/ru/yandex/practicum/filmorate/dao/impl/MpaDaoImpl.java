@@ -13,10 +13,11 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class MpaDaoImpl extends AbstractDaoImpl implements MpaDao {
+public class MpaDaoImpl implements MpaDao {
 
     private final JdbcTemplate jdbcTemplate;
-
+    private static final String MPA_GET_ALL = "SELECT * FROM MPAS;";
+    private static final String MPA_GET_BY_ID = "SELECT * FROM MPAS WHERE MPA_ID = ?;";
     public MpaDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -24,7 +25,7 @@ public class MpaDaoImpl extends AbstractDaoImpl implements MpaDao {
     @Override
     public Mpa getMpa(Long mpaId) {
         try {
-            Mpa mpa = jdbcTemplate.queryForObject(readSql("mpa_get_by_id"), this::parseMpa, mpaId);
+            Mpa mpa = jdbcTemplate.queryForObject(MPA_GET_BY_ID, this::parseMpa, mpaId);
             log.info("Найден рейтинг фильма с id = {}", mpaId);
             return mpa;
         } catch (Exception e) {
@@ -34,7 +35,7 @@ public class MpaDaoImpl extends AbstractDaoImpl implements MpaDao {
 
     @Override
     public List<Mpa> getAllMpa() {
-        List<Mpa> mpas = jdbcTemplate.query(readSql("mpa_get_all"), this::parseMpa);
+        List<Mpa> mpas = jdbcTemplate.query(MPA_GET_ALL, this::parseMpa);
         log.info("Найден список рейтингов фильмов");
         return mpas;
     }

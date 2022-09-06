@@ -13,8 +13,18 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class FriendsDaoImpl extends AbstractDaoImpl implements FriendsDao {
+public class FriendsDaoImpl implements FriendsDao {
     private final JdbcTemplate jdbcTemplate;
+    private static final String FRIENDS_ADD = "INSERT INTO FRIENDSHIP(user_id, friend_id, status) VALUES (?, ?, ?);";
+    private static final String FRIENDS_GET = "SELECT *\n" +
+            "FROM USERS\n" +
+            "WHERE ID IN (\n" +
+            "    SELECT FRIEND_ID as ID\n" +
+            "    FROM FRIENDSHIP\n" +
+            "    WHERE USER_ID = ?);";
+    private static final String FRIENDS_REMOVE = "DELETE\n" +
+            "FROM FRIENDSHIP\n" +
+            "WHERE (USER_ID = ? AND FRIEND_ID = ?) OR (USER_ID = ? AND FRIEND_ID = ?);";
 
     public FriendsDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -22,19 +32,19 @@ public class FriendsDaoImpl extends AbstractDaoImpl implements FriendsDao {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        jdbcTemplate.update(readSql("friends_add"), userId, friendId, true);
+        jdbcTemplate.update(FRIENDS_ADD, userId, friendId, true);
         log.info("Пользователь {} добавил друга {}", userId, friendId);
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
-        jdbcTemplate.update(readSql("friends_remove"), userId, friendId, friendId, userId);
+        jdbcTemplate.update(FRIENDS_REMOVE, userId, friendId, friendId, userId);
         log.info("Пользователь {} удалил из друзей {}", userId, friendId);
     }
 
     @Override
     public List<User> getFriends(Long userId) {
-        List<User> users = jdbcTemplate.query(readSql("friends_get"),
+        List<User> users = jdbcTemplate.query(FRIENDS_GET,
                 this::mapRowToUser,
                 userId
         );

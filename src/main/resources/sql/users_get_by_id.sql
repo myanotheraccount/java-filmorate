@@ -1,3 +1,0 @@
-SELECT *
-FROM USERS
-WHERE ID = ?;
