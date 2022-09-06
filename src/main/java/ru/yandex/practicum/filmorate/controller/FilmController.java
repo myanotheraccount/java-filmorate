@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.LikesService;
+import ru.yandex.practicum.filmorate.service.MarksService;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -19,13 +20,17 @@ public class FilmController extends AbstractController<Film> {
 
     private final FilmService filmService;
     private final LikesService likesService;
+
+    private final MarksService marksService;
     private final DirectorService directorService;
 
     @Autowired
-    public FilmController(FilmService filmService, LikesService likesService, DirectorService directorService) {
+    public FilmController(FilmService filmService, LikesService likesService, MarksService marksService,
+                          DirectorService directorService) {
         super(filmService);
         this.filmService = filmService;
         this.likesService = likesService;
+        this.marksService = marksService;
         this.directorService = directorService;
     }
 
@@ -88,5 +93,30 @@ public class FilmController extends AbstractController<Film> {
         } catch (Exception e) {
             throw new NotFoundException(e.getMessage());
         }
+    }
+
+    @GetMapping(value = {"/{id}/mark", "/{id}/mark/{userId}"})
+    public float getMark(
+            @PathVariable long id,
+            @PathVariable Optional<Long> userId
+    ) {
+        return marksService.getMark(id, userId);
+    }
+
+    @PutMapping("/{id}/mark/{userId}/{mark}")
+    public void addMark(
+            @PathVariable long id,
+            @PathVariable long userId,
+            @PathVariable float mark
+    ) {
+        marksService.addMark(id, userId, mark);
+    }
+
+    @DeleteMapping("/{id}/mark/{userId}")
+    public void removeMark(
+            @PathVariable long id,
+            @PathVariable long userId
+    ) {
+        marksService.removeMark(id, userId);
     }
 }

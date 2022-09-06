@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -11,6 +12,7 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.LikesService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,7 +29,7 @@ class FilmoRateApplicationTests {
 
     private final FilmDao filmDao;
     private final GenreDao genreDao;
-    private final LikesDao likesDao;
+    private final LikesService likesService;
     private final MpaDao mpaDao;
     private final UserDao userDao;
     private final FriendsDao friendsDao;
@@ -53,6 +55,7 @@ class FilmoRateApplicationTests {
         return filmDao.createFilm(film);
     }
 
+    @BeforeEach
     @AfterEach
     public void execute() {
         JdbcTestUtils.deleteFromTables(jdbcTemplate,
@@ -118,14 +121,14 @@ class FilmoRateApplicationTests {
         User user1 = createUser();
         User user2 = createUser();
 
-        likesDao.addLike(film.getId(), user1.getId());
-        likesDao.addLike(film.getId(), user2.getId());
+        likesService.addLike(film.getId(), user1.getId());
+        likesService.addLike(film.getId(), user2.getId());
 
         assertEquals(filmDao.getPopular(1L).get(0).getId(), film.getId());
 
-        likesDao.removeLike(film.getId(), user1.getId());
-        likesDao.removeLike(film.getId(), user2.getId());
-        likesDao.addLike(film2.getId(), user1.getId());
+        likesService.removeLike(film.getId(), user1.getId());
+        likesService.removeLike(film.getId(), user2.getId());
+        likesService.addLike(film2.getId(), user1.getId());
 
         assertEquals(filmDao.getPopular(1L).get(0).getId(), film2.getId());
     }

@@ -25,7 +25,7 @@ public class Film {
     @Positive
     private Integer duration;
     private Mpa mpa;
-    private Long rate;
+    private float rate;
     private List<Genre> genres;
     private List<Director> directors;
 }
